@@ -89,3 +89,13 @@ export function baixarCsv(nome, linhas) {
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
+
+// Regioes do IBGE
+export const REGIAO = {
+  Norte: ["AC", "AM", "AP", "PA", "RO", "RR", "TO"],
+  Nordeste: ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
+  "Centro-Oeste": ["DF", "GO", "MS", "MT"],
+  Sudeste: ["ES", "MG", "RJ", "SP"],
+  Sul: ["PR", "RS", "SC"],
+};
+export const regiaoDe = (uf) => Object.keys(REGIAO).find((r) => REGIAO[r].includes(uf)) || "";

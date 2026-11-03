@@ -13,7 +13,7 @@ Painel estático para clientes pesquisarem licitações abertas por estado e mun
 **Opção A, GitHub + Hostinger (recomendada).**
 1. Crie o repositório e envie esta pasta.
 2. Em *Actions*, rode "Coletar editais do PNCP" uma vez (`Run workflow`) e confira se `dados/` foi preenchido. Depois ele roda sozinho às 08:15 e 17:15 (Brasília).
-3. Na Hostinger (hPanel), conecte o repositório em *Git* e ative a implantação automática para a pasta do site (sugestão: subdomínio `editais.partelli.pro` ou pasta `/editais`). Cada coleta gera um commit e a Hostinger publica sozinha.
+3. Na Hostinger (hPanel), conecte o repositório em *Git* e ative a implantação automática para a pasta do site com pasta de instalação `editais`, para abrir em `partelli.pro/editais`. Cada coleta gera um commit e a Hostinger publica sozinha.
 
 **Opção B, robô no seu computador.** Se o PNCP recusar as conexões do GitHub (mesmo padrão dos robôs do DOU e do InvestSUS), agende `robo/rodar_local.sh` no cron da máquina Server. O restante do fluxo é igual.
 
@@ -24,6 +24,14 @@ python3 tests/mock_pncp.py 8765 &
 python3 robo/coletar_editais.py --base-url http://127.0.0.1:8765/api/consulta/v1 --saida /tmp/dados_demo
 ```
 Dados gerados com `--base-url` diferente do PNCP recebem `demo: true` e a página exibe a faixa "DADOS DE DEMONSTRAÇÃO". Nunca publique essa saída.
+
+## Filtros, região e empresa (CNPJ)
+
+- **Região e estado:** os seletores e o mapa filtram a lista, os totais, o ranking e o mapa. Escolher um estado limpa a região.
+- **Mapa da busca:** com qualquer filtro ativo e os dados carregados, o mapa passa a colorir só o que passa pelos filtros.
+- **Empresa:** o campo de CNPJ consulta o cadastro no navegador (`js/cnpj.js`, hoje via BrasilAPI), converte os CNAEs em temas (`js/cnae.js`, tabela inicial a revisar) e aplica estado e temas. O CNPJ não é guardado nem vai para a URL.
+- **Trocar a fonte do CNPJ:** reescreva `buscarEmpresa()` em `js/cnpj.js` (por exemplo, para ler uma base da Receita pré-processada pelo robô). O restante do painel não muda.
+- **Aviso de LGPD:** o número digitado é enviado do navegador do usuário ao serviço de consulta. O texto da página informa isso.
 
 ## Ajustes comuns
 

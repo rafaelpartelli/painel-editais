@@ -21,7 +21,7 @@ export function desenhar(svg, o) {
 
   const g = el("g", {});
   for (const i of o.itens) {
-    const p = el("path", { d: i.d, class: `e c${i.c}`, "data-k": i.key, "data-c": i.c, "aria-label": i.aria });
+    const p = el("path", { d: i.d, class: `e c${i.c}${i.fora ? " fora" : ""}`, "data-k": i.key, "data-c": i.c, "aria-label": i.aria });
     if (i.c > 0 || o.modo === "brasil") { p.setAttribute("tabindex", "0"); p.setAttribute("role", "button"); }
     if (i.key === o.selecionado) { p.classList.add("sel"); p.setAttribute("aria-pressed", "true"); }
     else if (p.getAttribute("role")) p.setAttribute("aria-pressed", "false");
