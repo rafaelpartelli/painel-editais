@@ -47,7 +47,16 @@ jobs:
           git add dados
           if git diff --cached --quiet; then
             echo "Sem mudanças nos dados."
-          else
-            git commit -m "dados: coleta PNCP $(TZ=America/Sao_Paulo date '+%d/%m/%Y %H:%M')"
-            git push
+            exit 0
           fi
+          git commit -m "dados: coleta PNCP $(TZ=America/Sao_Paulo date '+%d/%m/%Y %H:%M')"
+          # Se alguem enviou algo ao ramo durante a coleta, atualiza e tenta de novo
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push; then
+              exit 0
+            fi
+            echo "Tentativa $i falhou, aguardando 5 segundos"
+            sleep 5
+          done
+          echo "Não foi possível publicar os dados" >&2
+          exit 1
