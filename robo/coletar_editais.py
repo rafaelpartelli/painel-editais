@@ -107,7 +107,7 @@ def pegar(url, tentativas=5, timeout=60):
 
 def buscar_uf(base, uf, hoje, tam_pagina, pausa, modalidade=None):
     """Percorre todas as paginas de contratacoes/proposta de uma UF."""
-    itens, pagina, total_pag = [], 1, 1
+    itens, pagina, total_pag, total_reg = [], 1, 1, None
     while pagina <= total_pag:
         params = {"dataFinal": hoje, "uf": uf, "pagina": pagina, "tamanhoPagina": tam_pagina}
         if modalidade:
@@ -115,8 +115,12 @@ def buscar_uf(base, uf, hoje, tam_pagina, pausa, modalidade=None):
         corpo = pegar(f"{base}/contratacoes/proposta?" + urllib.parse.urlencode(params))
         itens.extend(corpo.get("data") or [])
         total_pag = int(corpo.get("totalPaginas") or 0)
+        total_reg = corpo.get("totalRegistros", total_reg)
         pagina += 1
         time.sleep(pausa)
+    # diagnostico: compara o que a API disse que existe com o que foi baixado
+    aviso = "" if total_reg in (None, len(itens)) else "  <<< DIVERGENCIA"
+    print(f"  [{uf}] API informou {total_reg} registros em {total_pag} pagina(s); baixados {len(itens)}{aviso}", flush=True)
     return itens
 
 
