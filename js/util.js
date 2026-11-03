@@ -99,3 +99,38 @@ export const REGIAO = {
   Sul: ["PR", "RS", "SC"],
 };
 export const regiaoDe = (uf) => Object.keys(REGIAO).find((r) => REGIAO[r].includes(uf)) || "";
+
+/* ---------- escalas de cor e resumo do objeto ---------- */
+// Matiz (graus, espaco OKLCH) por esfera e por modalidade. A cor e reforcada sempre pelo texto da etiqueta.
+export const ESFERA_H = { Federal: 262, Estadual: 305, Municipal: 150, Distrital: 195 };
+const MOD_H = [
+  ["pregao", 235], ["concorrencia", 345], ["dispensa", 178], ["inexigibilidade", 60], ["credenciamento", 20],
+  ["leilao", 105], ["concurso", 290], ["dialogo", 210], ["chamamento", 40], ["pre-qualificacao", 165], ["pre qualificacao", 165], ["manifestacao", 5],
+];
+export function modH(nome) {
+  const n = norm(nome);
+  for (const [k, h] of MOD_H) if (n.includes(k)) return h;
+  return null;
+}
+export const estiloH = (h) => (h == null ? "" : `--h:${h}`);
+
+const PREFIXOS = [
+  /^\s*\[demonstra[cç][aã]o\]\s*/i,
+  /^(registro de pre[cç]os?\s+(para|visando)\s+)/i,
+  /^(contrata[cç][aã]o|aquisi[cç][aã]o|fornecimento)\s+de\s+empresa(\s+especializada)?\s+(para|na|no)\s+/i,
+  /^(contrata[cç][aã]o|aquisi[cç][aã]o)\s+(de|para)\s+/i,
+  /^(a\s+)?(presente\s+)?(licita[cç][aã]o|contrata[cç][aã]o)\s+(tem\s+por\s+objeto|objetiva|visa)\s+(a\s+)?/i,
+  /^objeto\s*:\s*/i,
+];
+// Resumo extrativo: remove abertura padronizada, corta na primeira frase ou em ~150 caracteres, sem inserir nada que nao esteja no texto.
+export function resumirObjeto(txt, max = 150) {
+  let s = (txt || "").replace(/\s+/g, " ").trim();
+  if (!s) return "";
+  const demo = /^\[demonstra[cç][aã]o\]/i.test(s);
+  for (const r of PREFIXOS) s = s.replace(r, "");
+  const frase = s.search(/[.;](\s|$)/);
+  if (frase > 20) s = s.slice(0, frase);
+  if (s.length > max) { s = s.slice(0, max); s = s.slice(0, s.lastIndexOf(" ") > 60 ? s.lastIndexOf(" ") : max).replace(/[,\s(]+$/, "") + "..."; }
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  return (demo ? "[Demonstração] " : "") + s;
+}

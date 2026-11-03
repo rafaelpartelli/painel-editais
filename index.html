@@ -13,8 +13,8 @@
 <meta property="og:url" content="https://partelli.pro/editais/">
 <meta property="og:image" content="https://partelli.pro/img/og.jpg">
 <meta name="theme-color" content="#0C326F">
-<link rel="stylesheet" href="css/painel.css?v=1">
-<link rel="modulepreload" href="js/app.js?v=1">
+<link rel="stylesheet" href="css/painel.css?v=2">
+<link rel="modulepreload" href="js/app.js?v=2">
 <link rel="preload" href="mapas/brasil.json" as="fetch" crossorigin>
 <link rel="preload" href="dados/resumo.json" as="fetch" crossorigin>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Painel de Editais de Saúde","url":"https://partelli.pro/editais/","applicationCategory":"BusinessApplication","inLanguage":"pt-BR","creator":{"@type":"Person","name":"Rafael Tartaglias Partelli","url":"https://partelli.pro/"},"isAccessibleForFree":true}</script>
@@ -131,6 +131,7 @@
         <button class="btn sec sm" id="btnCsv" type="button">Baixar planilha (CSV)</button>
       </div>
     </div>
+    <div class="legcores" id="legCores" aria-label="Legenda de cores: clique para filtrar por esfera ou modalidade"></div>
     <p class="prog" id="prog" aria-live="polite"></p>
     <ul class="lista" id="lista"></ul>
     <div class="mais"><button class="btn sec" id="btnMais" type="button" hidden>Mostrar mais</button></div>
@@ -161,7 +162,7 @@
   <div class="dlg-f" id="dlgF"></div>
 </dialog>
 
-<script type="module" src="js/app.js?v=1"></script>
+<script type="module" src="js/app.js?v=2"></script>
 <noscript><div class="wrap"><p class="erro">Este painel precisa de JavaScript para exibir o mapa e os filtros. Os editais também estão no <a href="https://pncp.gov.br/app/editais">portal oficial do PNCP</a>.</p></div></noscript>
 </body>
 </html>

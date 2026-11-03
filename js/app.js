@@ -1,7 +1,7 @@
 // Painel de Editais de Saude: mapa Brasil/regiao/UF + filtros + empresa (CNPJ) + lista. Sem framework, sem build.
 import {
   fmtInt, fmtBRL, fmtBRLc, UF_NOME, CATEGORIAS, REGIAO, regiaoDe, norm, data, dataHora, diasAte, urlSegura,
-  h, debounce, escala, baixarCsv,
+  h, debounce, escala, baixarCsv, ESFERA_H, modH, estiloH, resumirObjeto,
 } from "./util.js";
 import { desenhar } from "./mapa.js";
 import { limpar, formatar, valido, buscarEmpresa, ErroCnpj } from "./cnpj.js";
@@ -350,16 +350,25 @@ const valorTxt = (e) => (e.valor != null ? fmtBRL.format(e.valor) : "Não inform
 function cartao(e) {
   const novo = e.visto === meta.atualizado_em.slice(0, 10);
   const mepp = empresa?.mepp && e.valor != null && e.valor <= LIMITE_ME;
-  return h("li", { class: `ed${novo ? " novo" : ""}` },
+  const resumo = resumirObjeto(e.objeto);
+  const completo = (e.objeto || "").replace(/\s+/g, " ").trim();
+  const mh = modH(e.modalidade);
+  return h("li", { class: `ed${novo ? " novo" : ""}`, style: estiloH(ESFERA_H[e.esfera]) },
     h("div", { class: "ed-top" },
       novo && h("span", { class: "tag novo" }, "Novo"),
-      e.modalidade && h("span", { class: "tag mod" }, e.modalidade),
-      e.esfera && h("span", { class: "tag" }, e.esfera),
+      e.esfera && h("span", { class: "tag esf" }, e.esfera),
+      e.modalidade && h("span", { class: `tag mod${mh == null ? " sem" : ""}`, style: estiloH(mh) }, e.modalidade),
       e.srp && h("span", { class: "tag" }, "Registro de preços"),
       mepp && h("span", { class: "tag novo" }, "Até R$ 80 mil (ME/EPP)"),
       ...e.cat.filter((c) => c !== "orgao_saude").slice(0, 2).map((c) => h("span", { class: "tag" }, CATEGORIAS[c] || c))),
-    h("h3", null, e.objeto || "Objeto não informado"),
-    h("p", { class: "org" }, `${e.orgao || "Órgão não informado"} · ${e.municipio || "Município não informado"}/${e.uf || ""}`),
+    h("div", { class: "contratante" },
+      h("span", { class: "rot" }, "Contratante"),
+      h("span", { class: "nome" }, e.orgao || "Órgão não informado"),
+      h("span", { class: "loc" }, [e.unidade && e.unidade !== e.orgao ? e.unidade : "", `${e.municipio || "Município não informado"}/${e.uf || ""}`].filter(Boolean).join(" · "))),
+    h("div", { class: "resumo" },
+      h("span", { class: "rot" }, "Resumo do objeto"),
+      h("p", null, resumo || "Objeto não informado")),
+    completo && completo.length > resumo.length + 3 && h("details", { class: "completo" }, h("summary", null, "Ver objeto completo"), h("p", null, completo)),
     h("dl", { class: "kv" },
       h("div", null, h("dt", null, "Valor estimado"), h("dd", null, valorTxt(e))),
       h("div", null, h("dt", null, "Publicado em"), h("dd", null, data(e.publicado))),
@@ -385,6 +394,7 @@ function renderLista() {
       incompleto ? "Carregando editais..." : h("span", null, h("b", null, "Nenhum edital encontrado. "), "Remova algum filtro, amplie o prazo ou escolha outro território no mapa.")));
   }
   const mais = $("btnMais");
+  marcarLegCores();
   mais.hidden = lista.length <= S.limite;
   mais.textContent = `Mostrar mais (${fmtInt.format(lista.length - S.limite)} restantes)`;
 }
@@ -508,15 +518,30 @@ function renderEmpresa() {
   ].filter(Boolean));
 }
 
+/* ---------- legenda de cores (tambem filtra) ---------- */
+function montarLegCores() {
+  const box = $("legCores");
+  const alternar = (chave, valor) => { S[chave] = S[chave] === valor ? "" : valor; S.limite = 30; sincronizarControles(); aoFiltrar(); };
+  const esf = Object.keys(ESFERA_H).map((n) => h("button", { type: "button", class: "tag esf", style: estiloH(ESFERA_H[n]), "data-esf": n, "aria-pressed": "false", onclick: () => alternar("esf", n) }, n));
+  const mods = Object.keys(resumo.modalidades || {}).map((n) => { const mh = modH(n); return h("button", { type: "button", class: `tag mod${mh == null ? " sem" : ""}`, style: estiloH(mh), "data-mod": n, "aria-pressed": "false", onclick: () => alternar("mod", n) }, n); });
+  box.replaceChildren(
+    h("div", { class: "grp" }, h("span", { class: "t" }, "Esfera"), ...esf),
+    h("div", { class: "grp" }, h("span", { class: "t" }, "Modalidade"), ...mods));
+}
+function marcarLegCores() {
+  for (const b of $("legCores").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.esf ? S.esf === b.dataset.esf : S.mod === b.dataset.mod));
+}
+
 /* ---------- detalhe, CSV ---------- */
 function abrirDetalhe(e) {
   $("dlgT").textContent = `${e.modalidade || "Contratação"} ${e.numero ? `nº ${e.numero}` : ""}`.trim();
   const origem = urlSegura(e.origem);
   const linha = (k, v) => v ? [h("dt", null, k), h("dd", null, v)] : [];
   $("dlgB").replaceChildren(
-    h("p", { class: "obj" }, e.objeto || "Objeto não informado"),
+    h("div", { class: "resumo" }, h("span", { class: "rot" }, "Resumo do objeto"), h("p", null, resumirObjeto(e.objeto) || "Objeto não informado")),
+    h("div", { class: "resumo" }, h("span", { class: "rot" }, "Objeto completo"), h("p", { class: "obj" }, e.objeto || "Objeto não informado")),
     h("dl", null,
-      ...linha("Órgão", e.orgao), ...linha("Unidade", e.unidade),
+      ...linha("Contratante", e.orgao), ...linha("Unidade", e.unidade),
       ...linha("Local", `${e.municipio || ""}/${e.uf || ""}`), ...linha("Esfera", e.esfera),
       ...linha("Valor estimado", valorTxt(e)), ...linha("Modo de disputa", e.disputa),
       ...linha("Processo", e.processo), ...linha("Situação", e.situacao),
@@ -545,6 +570,7 @@ function preencherSelects() {
   for (const r of Object.keys(REGIAO)) $("fReg").append(h("option", { value: r }, r));
   for (const [uf, nome] of Object.entries(UF_NOME)) $("fUf").append(h("option", { value: uf }, `${nome} (${uf})`));
   for (const m of Object.keys(resumo.modalidades || {})) $("fMod").append(h("option", { value: m }, m));
+  montarLegCores();
   for (const [k, v] of Object.entries(CATEGORIAS)) if (!resumo.categorias || resumo.categorias[k]) $("fCat").append(h("option", { value: k }, v));
 }
 
