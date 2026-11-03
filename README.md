@@ -12,7 +12,7 @@ Painel estático para clientes pesquisarem licitações abertas por estado e mun
 
 **Opção A, GitHub + Hostinger (recomendada).**
 1. Crie o repositório e envie esta pasta.
-2. Em *Actions*, rode "Coletar editais do PNCP" uma vez (`Run workflow`) e confira se `dados/` foi preenchido. Depois ele roda sozinho às 08:15 e 17:15 (Brasília).
+2. Em *Actions*, rode "Coletar editais do PNCP" uma vez (`Run workflow`) e confira se `dados/` foi preenchido. Depois ele roda sozinho todos os dias às 04:00 (Brasília).
 3. Na Hostinger (hPanel), conecte o repositório em *Git* e ative a implantação automática para a pasta do site com pasta de instalação `editais`, para abrir em `partelli.pro/editais`. Cada coleta gera um commit e a Hostinger publica sozinha.
 
 **Opção B, robô no seu computador.** Se o PNCP recusar as conexões do GitHub (mesmo padrão dos robôs do DOU e do InvestSUS), agende `robo/rodar_local.sh` no cron da máquina Server. O restante do fluxo é igual.
