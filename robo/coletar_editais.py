@@ -228,7 +228,10 @@ def main():
     cls = Classificador(cfg)
     agora = datetime.now(FUSO)
     agora_iso = agora.isoformat(timespec="seconds")
-    hoje = agora.strftime("%Y%m%d")
+    # dataFinal da consulta de propostas abertas e um LIMITE: traz o que encerra ate essa data.
+    # Por isso usamos uma janela a frente (padrao 180 dias), e nao a data de hoje.
+    hoje = (agora + timedelta(days=cfg.get("janela_dias", 180))).strftime("%Y%m%d")
+    print(f"Propostas abertas com encerramento ate {hoje}", flush=True)
 
     meta_ant = ler_json(os.path.join(a.saida, "meta.json"), {})
     erros, resumo_uf = {}, {}
