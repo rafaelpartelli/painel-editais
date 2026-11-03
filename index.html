@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Editais de Saúde por Estado e Município | Rafael Partelli</title>
+<meta name="description" content="Pesquise licitações abertas de saúde no Brasil por estado e município, com dados do Portal Nacional de Contratações Públicas (PNCP), filtros por modalidade, valor e prazo, e link direto para o edital.">
+<link rel="canonical" href="https://partelli.pro/editais/">
+<link rel="icon" type="image/png" href="https://partelli.pro/img/favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Painel de Editais de Saúde por Estado e Município">
+<meta property="og:description" content="Licitações abertas de saúde no Brasil, com mapa por estado e município, dados do PNCP e link direto para o edital.">
+<meta property="og:url" content="https://partelli.pro/editais/">
+<meta property="og:image" content="https://partelli.pro/img/og.jpg">
+<meta name="theme-color" content="#0C326F">
+<link rel="stylesheet" href="css/painel.css?v=1">
+<link rel="modulepreload" href="js/app.js?v=1">
+<link rel="preload" href="mapas/brasil.json" as="fetch" crossorigin>
+<link rel="preload" href="dados/resumo.json" as="fetch" crossorigin>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Painel de Editais de Saúde","url":"https://partelli.pro/editais/","applicationCategory":"BusinessApplication","inLanguage":"pt-BR","creator":{"@type":"Person","name":"Rafael Tartaglias Partelli","url":"https://partelli.pro/"},"isAccessibleForFree":true}</script>
+</head>
+<body>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="https://partelli.pro/" aria-label="Rafael Partelli, início">
+      <svg viewBox="0 0 30 21" width="30" height="21" aria-hidden="true" focusable="false"><rect width="30" height="21" fill="#009C3B"/><path d="M2.5 10.5L15 2.4L27.5 10.5L15 18.6Z" fill="#FFDF00"/><circle cx="15" cy="10.5" r="5.1" fill="#002776"/><path d="M9.95 11.9Q14.6 8.7 20.05 9.3" fill="none" stroke="#fff" stroke-width="1"/></svg>
+      <span>Rafael Partelli</span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="https://partelli.pro/gestor/">Área do Gestor</a>
+      <a href="https://partelli.pro/gestor/radar/">Radar Saúde</a>
+      <a href="./" aria-current="page">Editais</a>
+      <a class="cta" href="https://partelli.pro/#contato" data-conv="editais_nav_contato">Falar comigo</a>
+    </nav>
+  </div>
+</header>
+
+<div id="avisoDemo" class="demo" hidden><div class="wrap">DADOS DE DEMONSTRAÇÃO. Os editais abaixo são fictícios e servem só para testar o painel. Não use para tomar decisões.</div></div>
+
+<main id="conteudo">
+<section class="hero">
+  <div class="wrap">
+    <p class="crumb"><a href="https://partelli.pro/">Início</a> &#8250; <a href="https://partelli.pro/gestor/">Área do Gestor</a> &#8250; Editais</p>
+    <h1>Painel de editais de saúde</h1>
+    <p class="lead">Licitações com propostas abertas no Brasil, por estado e município. Escolha um território no mapa, filtre por modalidade, valor e prazo e abra o edital oficial no PNCP.</p>
+    <p class="upd" id="upd" aria-live="polite"><span>Carregando dados...</span></p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div id="erro" class="erro" role="alert" hidden></div>
+
+  <section class="kpis" aria-label="Resumo do território selecionado">
+    <div class="kpi"><span class="k">Editais abertos</span><span class="v" id="kN">-</span><span class="s" id="kNs">&nbsp;</span></div>
+    <div class="kpi"><span class="k">Valor estimado</span><span class="v" id="kV">-</span><span class="s">soma dos valores informados</span></div>
+    <div class="kpi"><span class="k" id="kMk">Municípios com edital</span><span class="v" id="kM">-</span><span class="s" id="kMs">&nbsp;</span></div>
+    <div class="kpi"><span class="k">Novos na última coleta</span><span class="v" id="kNv">-</span><span class="s" id="kNvs">&nbsp;</span></div>
+  </section>
+
+  <section class="painel" aria-labelledby="tMapa">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <p class="crumbs" id="crumbs"></p>
+          <h2 id="tMapa">Mapa do Brasil</h2>
+        </div>
+        <div class="seg" role="radiogroup" aria-label="Medida exibida no mapa">
+          <label><input type="radio" name="metrica" value="n" checked><span>Quantidade</span></label>
+          <label><input type="radio" name="metrica" value="valor"><span>Valor estimado</span></label>
+        </div>
+      </div>
+      <div class="mapa-box" id="mapaBox">
+        <svg id="mapa" class="mapa" role="group" aria-labelledby="tMapa" focusable="false"></svg>
+        <div id="tip" class="tip" role="presentation" hidden></div>
+      </div>
+      <ul class="legenda" id="legenda" aria-label="Legenda do mapa"></ul>
+      <p class="dica" id="dica">Clique em um estado para ver os municípios e os editais. Use Tab e Enter para navegar pelo teclado.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h2 id="tRank">Ranking de estados</h2>
+        <button class="btn sec sm" id="btnVoltar" type="button" hidden>&#8592; Voltar ao Brasil</button>
+      </div>
+      <ol class="rank" id="rank" aria-labelledby="tRank"></ol>
+    </div>
+  </section>
+
+  <section class="filtros card" aria-labelledby="tFiltros">
+    <h2 id="tFiltros" class="sr">Filtros</h2>
+    <div class="fgrid">
+      <div class="busca"><label for="fQ">Buscar por objeto, órgão, município ou número</label><input id="fQ" type="search" placeholder="Ex.: medicamentos, oxigênio, UBS, 123/2026" autocomplete="off"></div>
+      <div><label for="fUf">Estado</label><select id="fUf"><option value="">Brasil (todos)</option></select></div>
+      <div><label for="fMod">Modalidade</label><select id="fMod"><option value="">Todas</option></select></div>
+      <div><label for="fCat">Tema</label><select id="fCat"><option value="">Todos</option></select></div>
+      <div><label for="fEsf">Esfera</label><select id="fEsf"><option value="">Todas</option><option>Municipal</option><option>Estadual</option><option>Federal</option><option>Distrital</option></select></div>
+      <div><label for="fPrazo">Propostas até</label><select id="fPrazo"><option value="">Qualquer prazo</option><option value="1">Hoje ou amanhã</option><option value="7">7 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></div>
+    </div>
+    <div class="frow">
+      <div><label class="fl" for="fVmin">Valor estimado mínimo (R$)</label><input id="fVmin" type="number" min="0" step="1000" inputmode="numeric" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--paper);color:var(--text);width:170px"></div>
+      <label class="chk"><input type="checkbox" id="fSrp"> Somente registro de preços (SRP)</label>
+      <label class="chk"><input type="checkbox" id="fNovo"> Somente novos</label>
+      <button class="btn sec sm" id="btnLimpar" type="button">Limpar filtros</button>
+    </div>
+    <div class="chips" id="chips" aria-label="Filtros ativos"></div>
+  </section>
+
+  <section aria-labelledby="tRes">
+    <div class="res-h">
+      <div>
+        <h2 id="tRes">Editais</h2>
+        <p class="sub" id="resSub" aria-live="polite"></p>
+      </div>
+      <div class="res-tools">
+        <label for="fOrd" class="sr">Ordenar por</label>
+        <select id="fOrd"><option value="encerramento">Prazo mais próximo</option><option value="valor">Maior valor</option><option value="publicado">Mais recentes</option></select>
+        <button class="btn sec sm" id="btnCsv" type="button">Baixar planilha (CSV)</button>
+      </div>
+    </div>
+    <p class="prog" id="prog" aria-live="polite"></p>
+    <ul class="lista" id="lista"></ul>
+    <div class="mais"><button class="btn sec" id="btnMais" type="button" hidden>Mostrar mais</button></div>
+  </section>
+
+  <p class="nota"><b>Como ler:</b> os dados vêm da API de Consulta do PNCP e são de responsabilidade dos órgãos que publicam. O tema é atribuído automaticamente por palavras-chave e pode ter imprecisões. Confira sempre o edital oficial e os prazos antes de participar. Conteúdo técnico e informativo, sem posicionamento partidário.</p>
+</div>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2>Precisa de apoio para participar, impugnar ou planejar?</h2>
+    <p>Análise de edital, conformidade com a Lei 14.133/2021, planejamento das compras e captação de recursos para a saúde.</p>
+    <a class="btn" href="https://partelli.pro/#contato" data-conv="editais_cta_contato">Falar com Rafael Partelli</a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Fonte: Portal Nacional de Contratações Públicas (PNCP), API de Consulta. Este painel não é um canal oficial do PNCP nem do governo federal.</p>
+    <p>Rafael Tartaglias Partelli, Administrador, CRA/ES 15721. <a href="https://partelli.pro/">partelli.pro</a>. O painel não coleta dados pessoais de quem navega.</p>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <div class="dlg-h"><h2 id="dlgT"></h2><button class="x" type="button" id="dlgX" aria-label="Fechar">&#215;</button></div>
+  <div class="dlg-b" id="dlgB"></div>
+  <div class="dlg-f" id="dlgF"></div>
+</dialog>
+
+<script type="module" src="js/app.js?v=1"></script>
+<noscript><div class="wrap"><p class="erro">Este painel precisa de JavaScript para exibir o mapa e os filtros. Os editais também estão no <a href="https://pncp.gov.br/app/editais">portal oficial do PNCP</a>.</p></div></noscript>
+</body>
+</html>
