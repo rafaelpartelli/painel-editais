@@ -2,11 +2,11 @@
   "escopo": "saude",
   "tamanho_pagina": 50,
   "categorias": {
-    "medicamentos": ["medicament", "farmac", "insulina", "vacina", "imunobiologic", "antibiotic", "quimioterap", "oncologic", "soro", "hemoderivad"],
-    "material_hospitalar": ["material medico", "material hospitalar", "insumos? hospitalar", "insumos? medic", "luva", "seringa", "agulha", "curativo", "gaze", "laboratori", "reagente", "odontolog", "cateter", "sonda", "epi hospitalar"],
-    "equipamentos": ["equipamentos? medic", "equipamentos? hospitalar", "ventilador pulmonar", "monitor multiparametr", "desfibrilador", "ultrassom", "ultrassonograf", "raio.?x", "tomograf", "ressonancia", "autoclave", "mobiliario hospitalar", "cama hospitalar", "maca", "eletrocardiograf"],
+    "medicamentos": ["medicament", "farmac", "insulina", "vacina", "imunobiologic", "antibiotic", "quimioterap", "oncologic", "soros?\\b", "sorologi", "hemoderivad"],
+    "material_hospitalar": ["material medico", "material hospitalar", "insumos? hospitalar", "insumos? medic", "luva", "seringa", "agulha", "curativo", "gazes?\\b", "laboratori", "reagente", "odontolog", "cateter", "sondas?\\b", "epi hospitalar"],
+    "equipamentos": ["equipamentos? medic", "equipamentos? hospitalar", "ventilador pulmonar", "monitor multiparametr", "desfibrilador", "ultrassom", "ultrassonograf", "raio.?x", "tomograf", "ressonancia", "autoclave", "mobiliario hospitalar", "cama hospitalar", "macas?\\b", "eletrocardiograf"],
     "servicos_saude": ["servicos? medic", "plantao", "plantoes", "enfermagem", "clinica", "hemodialise", "terapia renal", "exames?", "diagnostic", "home care", "oxigenio", "gases? medicinais", "ambulatorial", "cirurgi", "consultas? especializada", "fisioterapia", "saude"],
-    "transporte_sanitario": ["ambulancia", "transporte sanitario", "tratamento fora do domicilio", "samu"],
+    "transporte_sanitario": ["ambulancia", "transporte sanitario", "tratamento fora do domicilio", "samu\\b"],
     "alimentacao_nutricao": ["nutricao enteral", "dieta enteral", "formula infantil", "alimentacao hospitalar", "suplemento nutricional"],
     "ti_saude": ["prontuario eletronico", "gestao em saude", "telemedicina", "telessaude", "e-?sus", "sistema de regulacao"]
   },
