@@ -2,8 +2,10 @@ name: Coletar editais do PNCP
 
 on:
   schedule:
-    # 07:00 UTC = 04:00 em Brasilia (UTC-3), todos os dias
-    - cron: "0 7 * * *"
+    # 01:07, 03:07 e 05:07 em Brasilia (04:07, 06:07 e 08:07 UTC). Se uma falhar, a seguinte cobre.
+    - cron: "7 4 * * *"
+    - cron: "7 6 * * *"
+    - cron: "7 8 * * *"
   workflow_dispatch:
     inputs:
       uf:
