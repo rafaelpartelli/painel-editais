@@ -23,7 +23,7 @@ concurrency:
 jobs:
   coletar:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
 
@@ -32,6 +32,7 @@ jobs:
           python-version: "3.12"
 
       - name: Rodar o robô
+        timeout-minutes: 110
         env:
           TZ: America/Sao_Paulo
           UFS: ${{ github.event.inputs.uf }}
@@ -43,6 +44,7 @@ jobs:
           fi
 
       - name: Publicar os dados no repositório
+        if: ${{ !cancelled() }}
         run: |
           git config user.name  "robo-editais"
           git config user.email "robo-editais@users.noreply.github.com"
