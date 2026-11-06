@@ -2,10 +2,11 @@ name: Coletar editais do PNCP
 
 on:
   schedule:
-    # 01:07, 03:07 e 05:07 em Brasilia (04:07, 06:07 e 08:07 UTC). Se uma falhar, a seguinte cobre.
-    - cron: "7 4 * * *"
-    - cron: "7 6 * * *"
-    - cron: "7 8 * * *"
+    # 01:46 (principal), 03:46 e 05:46 (reforcos) em Brasilia = 04:46, 06:46 e 08:46 UTC (o cron do GitHub e sempre em UTC).
+    # Os reforcos so rodam se nenhuma coleta agendada tiver terminado com sucesso no dia (ver job "verificar").
+    - cron: "46 4 * * *"
+    - cron: "46 6 * * *"
+    - cron: "46 8 * * *"
   workflow_dispatch:
     inputs:
       uf:
@@ -15,14 +16,33 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: coletar-editais
   cancel-in-progress: false
 
 jobs:
+  verificar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      executar: ${{ steps.d.outputs.executar }}
+    steps:
+      - id: d
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENTO: ${{ github.event_name }}
+        run: |
+          export TZ=America/Sao_Paulo
+          inicio="$(date -d "$(date +%F) 00:00" -u +%Y-%m-%dT%H:%M:%SZ)"
+          feitas="$(gh run list -R "$GITHUB_REPOSITORY" --workflow coletar.yml --status success --limit 30 --json databaseId,createdAt,event --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID and .event == \"schedule\" and .createdAt >= \"$inicio\")] | length")"
+          if [ "$EVENTO" = "schedule" ] && [ "${feitas:-0}" != "0" ]; then echo "executar=false" >> "$GITHUB_OUTPUT"; else echo "executar=true" >> "$GITHUB_OUTPUT"; fi
+
   coletar:
-    runs-on: ubuntu-latest
+    needs: verificar
+    if: needs.verificar.outputs.executar == 'true'
+    runs-on: ubuntu-24.04
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
