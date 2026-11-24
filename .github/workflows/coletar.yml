@@ -2,9 +2,9 @@ name: Coletar editais do PNCP
 
 on:
   schedule:
-    # 20:00 (principal), 22:00 e 23:00 (reforcos) em Brasilia = 23:00, 01:00 e 02:00 UTC (o cron do GitHub e sempre em UTC).
+    # 21:00 (principal), 22:00 e 23:00 (reforcos) em Brasilia = 00:00, 01:00 e 02:00 UTC (o cron do GitHub e sempre em UTC).
     # Os reforcos so rodam se nenhuma coleta agendada tiver terminado com sucesso no dia (ver job "verificar").
-    - cron: "0 23 * * *"
+    - cron: "0 0 * * *"
     - cron: "0 1 * * *"
     - cron: "0 2 * * *"
   workflow_dispatch:
